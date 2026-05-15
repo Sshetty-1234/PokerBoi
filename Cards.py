@@ -52,6 +52,6 @@ def card_evaluation(board, player):
     board = [ Card.new(rank_map[r] + suit_map[s]) for r, s in board ]
     player = [ Card.new(rank_map[r] + suit_map[s]) for r, s in player ]
     
-    print(evaluator.evaluate(board, player))
+    return (evaluator.evaluate(board, player))
 
 
