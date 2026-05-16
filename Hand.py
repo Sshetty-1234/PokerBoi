@@ -8,6 +8,7 @@ class GAME:
     def __init__(self):
         self.TABLE = []
         self.pot = 0
+        self.used_cards = set()
         self.USER = Player()
         self.COMP = Player()
         self.phase = GamePhases.PREFLOP
@@ -97,24 +98,28 @@ class GAME:
             
             print("Invalid choice try again!")
             return False
+        
+        return True
             
     # deals a random card
     def draw_random_card(self) -> str:
         
-        rank_power = random.randint(0,len(RANK)-1)
-        suit_index = random.randint(0,len(SUIT)-1)
-        card = (str(RANK[rank_power]), str(SUIT[suit_index]))
-        
-        if card in self.TABLE:
-            self.draw_random_card()
-            
-        return card
+        while True:
+            rank_power = random.randint(0, len(RANK)-1)
+            suit_index = random.randint(0, len(SUIT)-1)
+
+            card = (RANK[rank_power], SUIT[suit_index])
+
+            if card not in self.used_cards:
+                self.used_cards.add(card)
+                return card
 
     def _next_round(self,):
         resume = input("Do you wish to continue? (y/N): ")
         if resume == "y":
             self.phase = GamePhases.PREFLOP
             self.TABLE = []
+            self.used_cards = set()
             self.deal()
             self.pot = 0
         else:
