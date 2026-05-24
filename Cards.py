@@ -1,6 +1,4 @@
-from treys import Card, Evaluator
-
-evaluator = Evaluator()
+DECK = []
 
 RANK = [
     "TWO",
@@ -25,6 +23,10 @@ SUIT = [
     "DIAMONDS"
 ]
 
+for r in RANK:
+    for s in SUIT:
+        DECK.append((r,s))
+
 rank_map = {
     "ACE": "A",
     "KING": "K",
@@ -48,10 +50,11 @@ suit_map = {
     "SPADES": "s"
 }
 
-def card_evaluation(board, player):
-    board = [ Card.new(rank_map[r] + suit_map[s]) for r, s in board ]
-    player = [ Card.new(rank_map[r] + suit_map[s]) for r, s in player ]
+def convert_card_notation(chosen_cards):
+    res = []
+    for card in chosen_cards:
+        res.append((rank_map[card[0]] + suit_map[card[1]]))
     
-    return (evaluator.evaluate(board, player))
+    return res
 
 

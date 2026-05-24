@@ -1,7 +1,10 @@
-from Cards import RANK,SUIT, card_evaluation
+from Cards import RANK,SUIT,convert_card_notation
 from Participant import Player 
+from phevaluator import evaluate_cards
+from decision_making import simulate
 from GameState import GamePhases
 import random
+
 
 class GAME:
     
@@ -31,28 +34,37 @@ class GAME:
             
             while self.action(choice) is False:
                 choice = (input("1: FOLD, 2: CHECK, 3: RAISE, 4:CALL: "))
-                
+            
+            print(len(self.TABLE))
             if self.phase == GamePhases.PREFLOP:
                 
                 for _ in range(3):
                     self.TABLE.append(self.draw_random_card())
                 self.phase = GamePhases.FLOP 
+                print(len(self.TABLE))
+
                 
             elif self.phase == GamePhases.FLOP:
                 
                 self.TABLE.append(self.draw_random_card())
                 self.phase = GamePhases.TURN
+                print(len(self.TABLE))
+
+                print(self.monte_carlo(self.USER.hand, self.TABLE,2))
                 
             elif self.phase == GamePhases.TURN:
                 
                 self.TABLE.append(self.draw_random_card())
                 self.phase = GamePhases.RIVER
+                #print("TURN being repeated")
+                print(len(self.TABLE))
                 
             elif self.phase == GamePhases.RIVER:
                 
                 print("\n")
-                usr_scr = card_evaluation(self.TABLE, self.USER.hand)
-                com_scr = card_evaluation(self.TABLE, self.COMP.hand)
+                print(len(self.TABLE))
+                usr_scr = evaluate_cards(*convert_card_notation(self.USER.hand + self.TABLE))
+                com_scr = evaluate_cards(*convert_card_notation(self.COMP.hand + self.TABLE))
                 print(f"Your Cards are  {self.USER.hand}") 
                 print(f"The opponent had {self.COMP.hand}")
                 if usr_scr < com_scr:
@@ -63,8 +75,21 @@ class GAME:
                     self.COMP.chips += self.pot
                 
                 self._next_round()
-                
     
+    
+    def monte_carlo(self, hand, table, players=2, samples=10000):
+        dist = [0,0,0]
+
+        for i in range(samples):
+            outcome = simulate(hand[:], table[:], players)
+            dist[outcome] += 1
+        res = list(map(lambda x: x/samples, dist))
+        return (
+            f"Chances of winning: {res[0] * 100:.2f}%\n"
+            f"Chances of losing: {res[1] * 100:.2f}%\n"
+            f"Chances of draw: {res[2] * 100:.2f}%"
+        )
+        
     def action(self, val: int):
         if not val.isdigit():
             print("Invalid choice try again!")
@@ -122,6 +147,9 @@ class GAME:
             self.used_cards = set()
             self.deal()
             self.pot = 0
+            self.USER.current_bet = 0
+            self.COMP.current_bet = 0
+            
         else:
             print(f"Your total earnings are: {self.USER.chips}")
             print(f"You bet {self.USER.current_bet}")
