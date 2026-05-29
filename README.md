@@ -1,4 +1,4 @@
-# Poker Decision Assistant (Monte Carlo + Pot Odds)
+# PokerBot 🃟♠️♥️♣️♦️
 
 An ongoing Python project that provides real-time poker decision support using Monte Carlo simulation and pot odds calculations.
 
