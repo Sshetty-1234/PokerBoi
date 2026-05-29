@@ -84,11 +84,31 @@ class GAME:
             outcome = simulate(hand[:], table[:], players)
             dist[outcome] += 1
         res = list(map(lambda x: x/samples, dist))
-        return (
-            f"Chances of winning: {res[0] * 100:.2f}%\n"
-            f"Chances of losing: {res[1] * 100:.2f}%\n"
-            f"Chances of draw: {res[2] * 100:.2f}%"
-        )
+        return res
+        # return (
+        #     f"Chances of winning: {res[0] * 100:.2f}%\n"
+        #     f"Chances of losing: {res[1] * 100:.2f}%\n"
+        #     f"Chances of draw: {res[2] * 100:.2f}%"
+        # )
+
+    def pot_odds_decision(self, call_amt : int):
+        
+        wins, _, ties = self.monte_carlo(self.USER.hand, self.TABLE,2)
+        # https://blog.gtowizard.com/what-is-equity-in-poker/
+        player_equity = wins + (0.5 * ties)
+        
+        if call_amt == 0:
+            return 0, player_equity, "check"
+        
+        required_equity = call_amt / (self.pot + call_amt) 
+        
+        if player_equity > required_equity:
+            return required_equity, player_equity, "call"
+        else:
+            return required_equity, player_equity, "fold"
+        
+        
+        
         
     def action(self, val: int):
         if not val.isdigit():
@@ -184,6 +204,11 @@ class GAME:
     # call: pot - 2 * (player_current_bet)
     def _call(self, participant:Player):
         call_amount = self.USER.current_bet - self.COMP.current_bet
+        
+        required_equity, player_equity, action = self.pot_odds_decision(call_amount)
+        var = input(f"Are you sure you want to call - you have a current equity of {player_equity} and the required entity is {required_equity}. Your recommended action is to {action}: Choose yes/No to proceed ")
+        if var == "No":
+            self._fold()
         self.pot += call_amount
         participant.chips -= call_amount
         participant.current_bet += call_amount
