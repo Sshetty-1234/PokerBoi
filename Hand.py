@@ -1,4 +1,4 @@
-from Cards import RANK,SUIT,convert_card_notation
+from Cards import RANK,SUIT,convert_card_notation, check_preflop
 from Participant import Player 
 from phevaluator import evaluate_cards
 from decision_making import simulate
@@ -35,20 +35,17 @@ class GAME:
             while self.action(choice) is False:
                 choice = (input("1: FOLD, 2: CHECK, 3: RAISE, 4:CALL: "))
             
-            print(len(self.TABLE))
             if self.phase == GamePhases.PREFLOP:
-                
+                print(f'Your hand strength (preflop equity) as it stands is {check_preflop(self.USER.hand)} %')
                 for _ in range(3):
                     self.TABLE.append(self.draw_random_card())
                 self.phase = GamePhases.FLOP 
-                print(len(self.TABLE))
 
                 
             elif self.phase == GamePhases.FLOP:
                 
                 self.TABLE.append(self.draw_random_card())
                 self.phase = GamePhases.TURN
-                print(len(self.TABLE))
 
                 print(self.monte_carlo(self.USER.hand, self.TABLE,2))
                 
@@ -56,8 +53,6 @@ class GAME:
                 
                 self.TABLE.append(self.draw_random_card())
                 self.phase = GamePhases.RIVER
-                #print("TURN being repeated")
-                print(len(self.TABLE))
                 
             elif self.phase == GamePhases.RIVER:
                 
@@ -107,7 +102,7 @@ class GAME:
         else:
             return required_equity, player_equity, "fold"
         
-        
+    
         
         
     def action(self, val: int):
