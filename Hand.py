@@ -92,15 +92,18 @@ class GAME:
         # https://blog.gtowizard.com/what-is-equity-in-poker/
         player_equity = wins + (0.5 * ties)
         
+        ev = player_equity * (self.pot + call_amt) - call_amt
+         
         if call_amt == 0:
-            return 0, player_equity, "check"
+            return 0, player_equity, "check",ev
         
         required_equity = call_amt / (self.pot + call_amt) 
         
         if player_equity > required_equity:
-            return required_equity, player_equity, "call"
+            print("if you ")
+            return required_equity, player_equity, "call", ev
         else:
-            return required_equity, player_equity, "fold"
+            return required_equity, player_equity, "fold", ev
         
     
         
@@ -200,8 +203,13 @@ class GAME:
     def _call(self, participant:Player):
         call_amount = self.USER.current_bet - self.COMP.current_bet
         
-        required_equity, player_equity, action = self.pot_odds_decision(call_amount)
-        var = input(f"Are you sure you want to call - you have a current equity of {player_equity} and the required entity is {required_equity}. Your recommended action is to {action}: Choose yes/No to proceed ")
+        required_equity, player_equity, action, ev = self.pot_odds_decision(call_amount)
+        print(f"Equity: {player_equity:.2%}")
+        print(f"Required Equity: {required_equity:.2%}")
+        print(f"EV of calling: ${ev:.2f}")
+        print(f"Recommended action: {action}")
+        
+        var = input("Do you wish to fold?: (Yes/No) ")
         if var == "No":
             self._fold()
         self.pot += call_amount
